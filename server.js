@@ -64,6 +64,7 @@ async function run() {
     app.post("/upload", upload.single("pdfFile"), async (req, res) => {
       try {
         const buffer = req.file.buffer;
+        console.log(buffer);
         const pdfTextItems = await parsePdf(buffer);
         const jsonContent = JSON.parse(JSON.stringify(pdfTextItems));
 
@@ -96,14 +97,14 @@ async function run() {
 
         const csSubjectsWithCGPA = csFields
           .map((subject, i) => {
-            const gpa = Number(jsonContent[subject?.index + 2]).toFixed(2);
+            const gpa = Number(jsonContent[subject?.index + 2]);
             const grd = jsonContent[subject?.index + 3];
 
             // Check if grd is not null and follows the expected structure
             if (gpa && typeof gpa !== null) {
               return {
                 ...subject,
-                gpa: gpa,
+                gpa: gpa.toFixed(2),
                 grd,
               };
             }
@@ -115,14 +116,14 @@ async function run() {
         // Extract Earn CGPA for each MTH subject
         const mathSubjectsWithCGPA = mathFields
           .map((subject, i) => {
-            const gpa = jsonContent[subject?.index + 2];
+            const gpa = Number(jsonContent[subject?.index + 2]);
             const grd = jsonContent[subject?.index + 3];
 
             // Check if grd is not null and follows the expected structure
             if (grd && typeof grd === "string" && grd.trim().length > 0) {
               return {
                 ...subject,
-                gpa: Number(gpa),
+                gpa: gpa.toFixed(2),
                 grd,
               };
             }
